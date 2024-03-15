@@ -1,25 +1,30 @@
 Sub Ticker()
     
-     Dim Ticker As String ' Declase data as String
-     Dim j As Integer ' Declare variable j
+     Dim Ticker As String
+     Dim j As Integer
      Dim ws As Worksheet
-     Set ws = ThisWorkbook.Worksheets("A") ' Change "Sheet1" to your sheet's name
-
-    Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+     Dim lastRow As Long
      
-     j = 2 ' Initialize j
+     For Each ws In ThisWorkbook.Worksheets
      
-     For i = 2 To lastRow 'Set range
-        If Cells(i, 1).Value <> Cells(i + 1, 1).Value Then
+        lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
     
-         Ticker = Cells(i, 1).Value 'Read value
-         Cells(j, 9).Value = Ticker 'Add value
-         j = j + 1 ' Increment j for each iteration
+
+     
+     j = 2 '
+     
+     For i = 2 To lastRow
+        If ws.Cells(i, 1).Value <> ws.Cells(i + 1, 1).Value Then
+    
+         Ticker = ws.Cells(i, 1).Value
+         ws.Cells(j, 9).Value = Ticker
+         j = j + 1 '
     End If
     
      Next i
+    ws.Cells(1, 9) = "Ticker"
     
+    Next ws
      
 End Sub
 
@@ -29,34 +34,47 @@ Sub yearlychange()
     Dim closing As Double
     Dim j As Integer
     Dim ws As Worksheet
-    Set ws = ThisWorkbook.Worksheets("A")
     Dim Ticker As String
 
     Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    For Each ws In ThisWorkbook.Worksheets
+     
+        lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
 
     j = 2
 
     For i = 2 To lastRow
         
        
-        If Cells(i, 1) <> Cells(i - 1, 1) Then
-            ' New stock ticker, reset variables
+        If ws.Cells(i, 1) <> ws.Cells(i - 1, 1) Then
             Ticker = Cells(i, 1).Value
             opening = Cells(i, 3).Value
         End If
         
-        If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
-            ' Last day of the year for this stock
+        If Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+          
             closing = Cells(i, 6).Value
          
-        Cells(j, 10) = closing - opening
+        ws.Cells(j, 10) = closing - opening
         j = j + 1
         End If
         Next i
-    Cells(1, 10).Value = "Yearly Change"
+    ws.Cells(1, 10).Value = "Yearly Change"
+    
+     For i = 2 To lastRow
+        If ws.Cells(i, 10).Value > 0 Then
+            ws.Cells(i, 10).Interior.Color = RGB(0, 255, 0)
+        End If
+        If ws.Cells(i, 10).Value < 0 Then
+            ws.Cells(i, 10).Interior.Color = RGB(255, 0, 0)
+        End If
+    Next i
+    
+    Next ws
+            
 
 End Sub
+            
 
 Sub percentagechange()
 
@@ -64,8 +82,7 @@ Dim yearlychange As Double
 Dim opening As Double
 Dim j As Integer
  Dim ws As Worksheet
- Dim Ticker As String
-     Set ws = ThisWorkbook.Worksheets("A")
+     Set ws = ThisWorkbook.Worksheets("2018")
 
     Dim lastRow As Long
     lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
@@ -74,17 +91,15 @@ j = 2
 
  For i = 2 To lastRow
  
-    If Cells(i, 1) <> Cells(i - 1, 1) Then
-            ' New stock ticker, reset variables
-            Ticker = Cells(i, 1).Value
+    If ws.Cells(i, 1) <> ws.Cells(i - 1, 1) Then
             opening = Cells(i, 3).Value
     End If
-    yearlychange = Cells(i, 10).Value
-    Cells(j, 11) = (yearlychange / opening) * 100 & "%"
-    Cells(j, 11).NumberFormat = "0.00%"
+    yearlychange = ws.Cells(i, 10).Value
+     ws.Cells(j, 11) = (yearlychange / opening) * 100 & "%"
+    ws.Cells(j, 11).NumberFormat = "0.00%"
     j = j + 1
     Next i
-    Cells(1, 11).Value = "Percentage Change"
+    ws.Cells(1, 11).Value = "Percentage Change"
     
 End Sub
 
@@ -94,10 +109,12 @@ Sub totalstockvolume()
     Dim j As Long
     Dim ws As Worksheet
     Dim Ticker As String
-        Set ws = ThisWorkbook.Worksheets("A")
 
     Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+      
+      For Each ws In ThisWorkbook.Worksheets
+     
+        lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
 
     j = 2
    
@@ -114,43 +131,93 @@ Sub totalstockvolume()
         End If
     Next i
     
-    Cells(1, 12) = "Total Stock Volume"
+    ws.Cells(1, 12) = "Total Stock Volume"
+
+Next ws
     
 End Sub
 
 Sub Bonus()
 
-Cells(2, 14).Value = "Great Percent Increase"
+    Dim totalvolume As Double
+    Dim j As Long
+    Dim ws As Worksheet
+    Dim Tickerhigh As String
+    Dim Tickerlow As String
+    Dim increase As Double
+    Dim decrease As Double
+
+    Dim lastRow As Long
+    For Each ws In ThisWorkbook.Worksheets
+     
+        lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+
+    j = 2
+
+    increase = 0
+    decrease = 0
+
+    For i = 2 To lastRow
+        If ws.Cells(i, 11).Value > increase Then
+            increase = ws.Cells(i, 11).Value
+            Tickerhigh = ws.Cells(i, 9)
+        End If
+    Next i
+
+    For i = 2 To lastRow
+        If ws.Cells(i, 11).Value < decrease Then
+            decrease = ws.Cells(i, 11).Value
+            Tickerlow = ws.Cells(i, 9)
+        End If
+    Next i
+
+    ws.Cells(2, 16) = increase
+    ws.Cells(2, 16).NumberFormat = "0.00%"
+    ws.Cells(2, 15) = Tickerhigh
+    ws.Cells(3, 16) = decrease
+    ws.Cells(3, 16).NumberFormat = "0.00%"
+    ws.Cells(3, 15) = Tickerlow
+    
+    Cells(2, 14).Value = "Great Percent Increase"
 Cells(3, 14).Value = "Greatest Percent Decrease"
 Cells(4, 14).Value = "Highest Volume"
 Cells(1, 15).Value = "Ticker"
 Cells(1, 16).Value = "Amount"
+    
+Next ws
 
-    Dim totalvolume As Double
+End Sub
+
+Sub highvolume()
+    Dim highvolume As Double
     Dim j As Long
     Dim ws As Worksheet
-    Dim Ticker As String
-        Set ws = ThisWorkbook.Worksheets("A")
-    Dim increase As Double
-    Dim decrease As Integer
-    Dim highvolume As Long
+    Dim Tickervolume As String
     
-
-    Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+        
+     Dim lastRow As Long
+       For Each ws In ThisWorkbook.Worksheets
+     
+        lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
 
     j = 2
     
-    increase = 0
+
+    highvolume = 0
    
 
      For i = 2 To lastRow
-        If Cells(i, 11).Value > increase Then
-        increase = Cells(i, 11).Value
-
-     End If
-     Next i
-     Cells(2, 16) = increase
-     Cells(2, 16).NumberFormat = "0.00%"
-
+        If ws.Cells(i, 12).Value > highvolume Then
+        highvolume = ws.Cells(i, 12).Value
+        Tickervolume = ws.Cells(i, 9)
+        
+        End If
+        
+        Next i
+        
+        ws.Cells(4, 16) = highvolume
+        ws.Cells(4, 15) = Tickervolume
+Next ws
+        
+        
 End Sub
